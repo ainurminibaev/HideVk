@@ -1,0 +1,31 @@
+#
+# generated on 2013/08/09 02:19:42
+#
+# --table-start--
+dataClass=com.ainur.hidevk.models.Message
+tableName=message
+# --table-fields-start--
+# --field-start--
+fieldName=mid
+# --field-end--
+# --field-start--
+fieldName=uid
+# --field-end--
+# --field-start--
+fieldName=date
+# --field-end--
+# --field-start--
+fieldName=read_state
+# --field-end--
+# --field-start--
+fieldName=out
+# --field-end--
+# --field-start--
+fieldName=title
+# --field-end--
+# --field-start--
+fieldName=body
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
