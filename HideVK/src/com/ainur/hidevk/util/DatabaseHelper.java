@@ -1,16 +1,18 @@
 package com.ainur.hidevk.util;
 
-import java.io.File;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.MediaStore.Audio;
 
 import com.ainur.hidevk.HideVkApp;
+import com.ainur.hidevk.R;
 import com.ainur.hidevk.models.Dialogs;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -30,7 +32,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION,
-				new File("a"));
+				R.raw.hide_vk_config);
 	}
 
 	@Override
@@ -53,11 +55,55 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		onCreate(arg0, arg1);
 	}
 
-	public Dao<Audio, Integer> getMessagesDao() {
+	public Dao<Dialogs, Integer> getDialogsDao() {
 		try {
 			return getDao(Dialogs.class);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public static interface ErrorListener {
+		public void onError(Exception e);
+	}
+
+	public void runTransactionInBg(final Callable<?> callable,
+			final ErrorListener errorListener) {
+		new Thread() {
+
+			@Override
+			public void run() {
+				try {
+					getDialogsDao().callBatchTasks(callable);
+				} catch (Exception e) {
+					if (errorListener != null) {
+						errorListener.onError(e);
+					}
+				}
+			};
+		}.start();
+	}
+
+	public List<Dialogs> getDialogs() {
+		try {
+			QueryBuilder<Dialogs, Integer> queryBuilder = getDialogsDao()
+					.queryBuilder();
+			return queryBuilder.orderBy(Dialogs.DATE, false).query();
+		} catch (Exception e) {
+			Log.d(e);
+			// TODO
+		}
+		return null;
+	}
+
+	public void clearAll() {
+		Dao<Dialogs, Integer> audioDao = getDialogsDao();
+		try {
+			audioDao.deleteBuilder().delete();
+			Log.d("Table cleared");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
