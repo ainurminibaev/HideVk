@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.MediaStore.Audio;
 
 import com.ainur.hidevk.HideVkApp;
-import com.ainur.hidevk.models.Message;
+import com.ainur.hidevk.models.Dialogs;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
@@ -36,7 +36,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase arg0, ConnectionSource arg1) {
 		try {
-			TableUtils.createTable(arg1, Message.class);
+			TableUtils.createTable(arg1, Dialogs.class);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -46,7 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public void onUpgrade(SQLiteDatabase arg0, ConnectionSource arg1, int arg2,
 			int arg3) {
 		try {
-			TableUtils.dropTable(arg1, Message.class, true);
+			TableUtils.dropTable(arg1, Dialogs.class, true);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -55,7 +55,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	public Dao<Audio, Integer> getMessagesDao() {
 		try {
-			return getDao(Message.class);
+			return getDao(Dialogs.class);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

@@ -8,5 +8,5 @@ public interface VkAPI {
 	public static final String SERVER = "https://api.vk.com/method";
 	
 	@GET("/messages.getDialogs")
-	void getDialogs(Callback<MessageResponse> cb);
+	void getDialogs(Callback<DialogResponse> cb);
 }

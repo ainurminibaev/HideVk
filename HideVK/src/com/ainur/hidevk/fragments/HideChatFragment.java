@@ -24,7 +24,7 @@ public class HideChatFragment extends SherlockFragment {
 
 	@InjectView(R.id.message_edit_open)
 	EditText messageEdit;
-
+	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);

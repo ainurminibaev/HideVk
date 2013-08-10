@@ -10,5 +10,8 @@
     <string name="open">OPEN</string>
     <string name="hide">HIDE</string>
     <string name="enter_message">Please, enter a message</string>
+    <string name="default_time">00:00</string>
+    <string name="hello">Hello</string>
+    <string name="user_image">User Image</string>
 
 </resources>
