@@ -1,9 +1,9 @@
 #
-# generated on 2013/08/11 12:31:47
+# generated on 2013/08/11 12:56:12
 #
 # --table-start--
-dataClass=com.ainur.hidevk.models.Dialogs
-tableName=dialogs
+dataClass=com.ainur.hidevk.models.Dialog
+tableName=dialog
 # --table-fields-start--
 # --field-start--
 fieldName=mid

@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.ainur.hidevk.HideVkApp;
 import com.ainur.hidevk.R;
-import com.ainur.hidevk.models.Dialogs;
+import com.ainur.hidevk.models.Dialog;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -28,7 +28,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	}
 
 	public static final String DATABASE_NAME = "hide_vk.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION,
@@ -38,7 +38,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase arg0, ConnectionSource arg1) {
 		try {
-			TableUtils.createTable(arg1, Dialogs.class);
+			TableUtils.createTable(arg1, Dialog.class);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -48,16 +48,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public void onUpgrade(SQLiteDatabase arg0, ConnectionSource arg1, int arg2,
 			int arg3) {
 		try {
-			TableUtils.dropTable(arg1, Dialogs.class, true);
+			TableUtils.dropTable(arg1, Dialog.class, true);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 		onCreate(arg0, arg1);
 	}
 
-	public Dao<Dialogs, Integer> getDialogsDao() {
+	public Dao<Dialog, Integer> getDialogsDao() {
 		try {
-			return getDao(Dialogs.class);
+			return getDao(Dialog.class);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -84,11 +84,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}.start();
 	}
 
-	public List<Dialogs> getDialogs() {
+	public List<Dialog> getDialogs() {
 		try {
-			QueryBuilder<Dialogs, Integer> queryBuilder = getDialogsDao()
+			QueryBuilder<Dialog, Integer> queryBuilder = getDialogsDao()
 					.queryBuilder();
-			return queryBuilder.orderBy(Dialogs.DATE, false).query();
+			return queryBuilder.orderBy(Dialog.DATE, false).query();
 		} catch (Exception e) {
 			Log.d(e);
 			// TODO
@@ -97,7 +97,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	}
 
 	public void clearAll() {
-		Dao<Dialogs, Integer> audioDao = getDialogsDao();
+		Dao<Dialog, Integer> audioDao = getDialogsDao();
 		try {
 			audioDao.deleteBuilder().delete();
 			Log.d("Table cleared");

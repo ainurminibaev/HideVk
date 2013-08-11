@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Dialogs {
+public class Dialog {
 	public static final String DATE = "date";
 
 	// message id
@@ -39,10 +39,10 @@ public class Dialogs {
 	@DatabaseField(canBeNull = true)
 	public String body;
 
-	public Dialogs() {
+	public Dialog() {
 	}
 
-	public Dialogs(int count) {
+	public Dialog(int count) {
 
 	}
 
