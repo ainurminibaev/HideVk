@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.ainur.hidevk.adapters.ViewPagerAdapter;
 
 public class ChatActivity extends SherlockFragmentActivity {
 

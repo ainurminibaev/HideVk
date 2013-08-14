@@ -1,4 +1,4 @@
-package com.ainur.hidevk.activity;
+package com.ainur.hidevk.adapters;
  
 import com.ainur.hidevk.fragments.OpenChatFragment;
 import com.ainur.hidevk.fragments.HideChatFragment;

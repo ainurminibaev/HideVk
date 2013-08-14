@@ -8,6 +8,8 @@ import java.util.concurrent.Callable;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.OnRefreshListener;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,20 +21,26 @@ import android.webkit.CookieSyncManager;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.ainur.hidevk.HideVkApp;
+import com.ainur.hidevk.activity.ChooseDialogActivity;
 import com.ainur.hidevk.activity.LoginActivity;
 import com.ainur.hidevk.adapters.DialogsAdapter;
 import com.ainur.hidevk.models.Dialog;
-import com.ainur.hidevk.util.DatabaseHelper;
-import com.ainur.hidevk.util.DatabaseHelper.ErrorListener;
+import com.ainur.hidevk.models.User;
+import com.ainur.hidevk.util.DatabaseDialogHelper;
+import com.ainur.hidevk.util.DatabaseDialogHelper.ErrorListener;
+import com.ainur.hidevk.util.DatabaseFriendsHelder;
 import com.ainur.hidevk.util.Log;
 import com.ainur.hidevk.util.Persistance;
 import com.ainur.hidevk.vk.DialogResponse;
+import com.ainur.hidevk.vk.FriendsResponse;
 import com.ainur.hidevk.vk.Vkontakte;
 import com.j256.ormlite.dao.Dao;
 
 public class ChooseDialogFragment extends SherlockListFragment {
 	private static final int LOGIN_VK_CODE = 101;
 	private boolean created;
+	private PullToRefreshAttacher dialogPullToRefreshAttacher;
+	private boolean refreshComplete;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -43,6 +51,10 @@ public class ChooseDialogFragment extends SherlockListFragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		dialogPullToRefreshAttacher = ((ChooseDialogActivity) getActivity())
+				.getPTRAttacher();
+		dialogPullToRefreshAttacher.addRefreshableView(getListView(),
+				new PTRListener());
 		if (created) {
 			return;
 		}
@@ -50,7 +62,20 @@ public class ChooseDialogFragment extends SherlockListFragment {
 		created = true;
 	}
 
+	private class PTRListener implements OnRefreshListener {
+
+		@Override
+		public void onRefreshStarted(View view) {
+			Log.d("Refreshing");
+			loadDialogs();
+			loadFriendsList();
+			refreshComplete = false;
+		}
+
+	}
+
 	private void onFirstCreated(View view) {
+
 		CookieSyncManager.createInstance(HideVkApp.getContext());
 
 		if (CookieManager.getInstance().getCookie("vk.com") == null) {
@@ -82,10 +107,11 @@ public class ChooseDialogFragment extends SherlockListFragment {
 
 	private void loadData() {
 		Log.d("Load Data");
-		List<Dialog> dialogs = DatabaseHelper.getInstance().getDialogs();
+		List<Dialog> dialogs = DatabaseDialogHelper.getInstance().getDialogs();
 		Log.d("Dialogs:" + dialogs.size());
 		if (dialogs == null || dialogs.size() == 0) {
 			loadDialogs();
+			loadFriendsList();
 		} else {
 			// TODO set Data to adapter
 			Log.d("set data from DATABASE");
@@ -98,8 +124,7 @@ public class ChooseDialogFragment extends SherlockListFragment {
 
 	private void setAdapterData(List<Dialog> dialogs) {
 		if (getListAdapter() == null) {
-			setListAdapter(new DialogsAdapter(getSherlockActivity(),
-					dialogs));
+			setListAdapter(new DialogsAdapter(getSherlockActivity(), dialogs));
 		} else {
 			getListAdapter().setDialogs(dialogs);
 		}
@@ -116,6 +141,7 @@ public class ChooseDialogFragment extends SherlockListFragment {
 		case LOGIN_VK_CODE:
 			if (resultCode == Activity.RESULT_OK) {
 				loadDialogs();
+				loadFriendsList();
 			} else {
 				getSherlockActivity().finish();
 			}
@@ -127,27 +153,36 @@ public class ChooseDialogFragment extends SherlockListFragment {
 	}
 
 	private void insertData(final List<Dialog> dialogs) {
-		DatabaseHelper.getInstance().runTransactionInBg(new Callable<Void>() {
+		DatabaseDialogHelper.getInstance().runTransactionInBg(
+				new Callable<Void>() {
 
-			@Override
-			public Void call() throws Exception {
-				Dao<Dialog, Integer> audioDao = DatabaseHelper.getInstance()
-						.getDialogsDao();
-				audioDao.deleteBuilder().delete();
-				for (Dialog d : dialogs) {
-					audioDao.create(d);
-				}
-				Log.d("Success in writing in DB");
-				return null;
-			}
-		}, new ErrorListener() {
+					@Override
+					public Void call() throws Exception {
+						Dao<Dialog, Integer> audioDao = DatabaseDialogHelper
+								.getInstance().getDialogsDao();
+						audioDao.deleteBuilder().delete();
+						for (Dialog d : dialogs) {
+							audioDao.create(d);
+						}
+						Log.d("Success in writing in DB");
+						return null;
+					}
+				}, new ErrorListener() {
 
-			@Override
-			public void onError(Exception e) {
-				// TODO Auto-generated method stub
-				Log.d("Error during transaction");
-			}
-		});
+					@Override
+					public void onError(Exception e) {
+						// TODO Auto-generated method stub
+						Log.d("Error during transaction");
+					}
+				});
+	}
+
+	private void checkRefreshing() {
+		if (refreshComplete == true) {
+			dialogPullToRefreshAttacher.setRefreshComplete();
+			return;
+		}
+		refreshComplete = true;
 	}
 
 	private void loadDialogs() {
@@ -155,10 +190,7 @@ public class ChooseDialogFragment extends SherlockListFragment {
 			@Override
 			public void success(DialogResponse arg0, Response arg1) {
 				Log.d("Download dialogs Success");
-				int i = 1;
-				for (Dialog d : arg0.response) {
-					Log.d(i + ": " + d.body);
-				}
+				checkRefreshing();
 				List<Dialog> dialogs = arg0.response;
 				if (dialogs != null) {
 					if (dialogs.size() > 1) {
@@ -177,10 +209,64 @@ public class ChooseDialogFragment extends SherlockListFragment {
 			}
 		});
 	}
-	
+
+	private void insertFriendList(final List<User> friends) {
+		DatabaseFriendsHelder.getInstance().runTransactionInBg(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				Dao<User, Integer> audioDao = DatabaseFriendsHelder
+						.getInstance().getFriendsDao();
+				audioDao.deleteBuilder().delete();
+				for (User u : friends) {
+					audioDao.create(u);
+				}
+				Log.d("Success in writing in DB");
+				return null;
+			}
+
+			
+		}, new ErrorListener() {
+			
+			@Override
+			public void onError(Exception e) {
+				Log.d("error occurred during friends transaction");
+			}
+		});
+	}
+
+	private void loadFriendsList() {
+		Vkontakte.get().getFriendsList(Persistance.getUserId(),
+				new Callback<FriendsResponse>() {
+
+					@Override
+					public void failure(RetrofitError arg0) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void success(FriendsResponse arg0, Response arg1) {
+						// TODO Auto-generated method stub
+						Log.d("Success loading friends");
+						checkRefreshing();
+						List<User> friends = arg0.response;
+						int c = 0;
+						for (User user : friends) {
+							Log.d(user.toString());
+							c++;
+							if (c > 30) {
+								break;
+							}
+						}
+						insertFriendList(friends);
+					}
+				});
+	}
+
 	@Override
 	public DialogsAdapter getListAdapter() {
-		return (DialogsAdapter)super.getListAdapter();
+		return (DialogsAdapter) super.getListAdapter();
 	}
 
 	@Override
@@ -196,13 +282,6 @@ public class ChooseDialogFragment extends SherlockListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-//		String[] countries = new String[] { "India", "Pakistan", "Sri Lanka",
-//				"China", "Bangladesh", "Nepal", "Afghanistan", "North Korea",
-//				"South Korea", "Japan" };
-//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-//				inflater.getContext(), android.R.layout.simple_list_item_1,
-//				countries);
-//		setListAdapter(adapter);
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 }

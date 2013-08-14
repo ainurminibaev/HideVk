@@ -6,6 +6,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.ainur.hidevk.util.Log;
 import com.ainur.hidevk.util.Persistance;
 import com.ainur.hidevk.vk.Vkontakte;
 
@@ -21,6 +22,7 @@ public class LoginActivity extends SherlockFragmentActivity {
 
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			view.loadUrl(url);
+			Log.d("url:"+url);
 			return true;
 		};
 	};

@@ -1,5 +1,7 @@
 package com.ainur.hidevk.adapters;
 
+import java.sql.Date;
+import java.text.DateFormat;
 import java.util.List;
 
 import android.content.Context;
@@ -14,7 +16,7 @@ import butterknife.Views;
 
 import com.ainur.hidevk.R;
 import com.ainur.hidevk.models.Dialog;
-import com.ainur.hidevk.util.Log;
+import com.ainur.hidevk.util.DatabaseFriendsHelder;
 
 public class DialogsAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
@@ -37,8 +39,8 @@ public class DialogsAdapter extends BaseAdapter {
 		}
 		return null;
 	}
-	
-	public void setDialogs(List<Dialog> list){
+
+	public void setDialogs(List<Dialog> list) {
 		this.dialogs = list;
 		notifyDataSetChanged();
 	}
@@ -68,6 +70,11 @@ public class DialogsAdapter extends BaseAdapter {
 		public ViewHolder(View view) {
 			Views.inject(this, view);
 		}
+
+		@Override
+		public String toString() {
+			return dialog.toString();
+		}
 	}
 
 	@Override
@@ -81,11 +88,19 @@ public class DialogsAdapter extends BaseAdapter {
 		ViewHolder holder = (ViewHolder) contentView.getTag();
 
 		Dialog dialog = getItem(position);
-		holder.date.setText("123");
+		long time = Integer.valueOf(dialog.date);
+		Date date = new Date(time * 1000);
+		String stringTime = DateFormat.getTimeInstance(DateFormat.SHORT)
+				.format(date);
+		holder.date.setText(stringTime);
 		holder.dialog = dialog;
 		holder.text.setText(dialog.body);
+		String userName = DatabaseFriendsHelder.getInstance().getUserName(dialog.uid);
+		if(userName==null){
 		holder.user.setText("Айнур Минибаев");
-		Log.d(holder.dialog.body);
+		} else {
+			holder.user.setText(userName);
+		}
 		return contentView;
 	}
 
