@@ -1,6 +1,7 @@
 package com.ainur.hidevk.util;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import android.content.Context;
@@ -27,7 +28,7 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 	}
 
 	public static final String DATABASE_NAME = "hide_vk_friends.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 8;
 
 	public DatabaseFriendsHelder(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION,
@@ -105,10 +106,52 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 			User finded = queryBuilder.queryForFirst();
 			String name = finded.firstName+" "+finded.lastName;
 			return name;
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public boolean isEmptyDB(){
+		Dao<User, Integer> friendsDao = getFriendsDao();
+		QueryBuilder<User, Integer> queryBuilder = friendsDao.queryBuilder();
+		queryBuilder.setCountOf(true);
+		long c=0;
+		try {
+			c = queryBuilder.countOf();
+			Log.d("Count of friends: "+c);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return c==0;
+	}
+	
+	public String getFriendImageURL(int uid){
+		Dao<User, Integer> friendsDao = getFriendsDao();
+		QueryBuilder<User, Integer> queryBuilder = friendsDao.queryBuilder();
+		try {
+			queryBuilder.where().eq(User.USER_ID, uid);
+		 List<User> query = queryBuilder.query();
+			return query.get(0).photoUrl;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public boolean addFriend(User user){
+		Dao<User, Integer> friendsDao = getFriendsDao();
+		try {
+			friendsDao.create(user);
+			Log.d("New user created");
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

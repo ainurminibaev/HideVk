@@ -40,7 +40,6 @@ public class ChooseDialogFragment extends SherlockListFragment {
 	private static final int LOGIN_VK_CODE = 101;
 	private boolean created;
 	private PullToRefreshAttacher dialogPullToRefreshAttacher;
-	private boolean refreshComplete;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -69,7 +68,6 @@ public class ChooseDialogFragment extends SherlockListFragment {
 			Log.d("Refreshing");
 			loadDialogs();
 			loadFriendsList();
-			refreshComplete = false;
 		}
 
 	}
@@ -113,7 +111,6 @@ public class ChooseDialogFragment extends SherlockListFragment {
 			loadDialogs();
 			loadFriendsList();
 		} else {
-			// TODO set Data to adapter
 			Log.d("set data from DATABASE");
 			for (Dialog d : dialogs) {
 				Log.d(d.body);
@@ -140,7 +137,6 @@ public class ChooseDialogFragment extends SherlockListFragment {
 		switch (requestCode) {
 		case LOGIN_VK_CODE:
 			if (resultCode == Activity.RESULT_OK) {
-				loadDialogs();
 				loadFriendsList();
 			} else {
 				getSherlockActivity().finish();
@@ -177,20 +173,12 @@ public class ChooseDialogFragment extends SherlockListFragment {
 				});
 	}
 
-	private void checkRefreshing() {
-		if (refreshComplete == true) {
-			dialogPullToRefreshAttacher.setRefreshComplete();
-			return;
-		}
-		refreshComplete = true;
-	}
-
 	private void loadDialogs() {
 		Vkontakte.get().getDialogs(new Callback<DialogResponse>() {
 			@Override
 			public void success(DialogResponse arg0, Response arg1) {
 				Log.d("Download dialogs Success");
-				checkRefreshing();
+				dialogPullToRefreshAttacher.setRefreshComplete();
 				List<Dialog> dialogs = arg0.response;
 				if (dialogs != null) {
 					if (dialogs.size() > 1) {
@@ -211,31 +199,36 @@ public class ChooseDialogFragment extends SherlockListFragment {
 	}
 
 	private void insertFriendList(final List<User> friends) {
-		DatabaseFriendsHelder.getInstance().runTransactionInBg(new Callable<Void>() {
+		DatabaseFriendsHelder.getInstance().runTransactionInBg(
+				new Callable<Void>() {
 
-			@Override
-			public Void call() throws Exception {
-				Dao<User, Integer> audioDao = DatabaseFriendsHelder
-						.getInstance().getFriendsDao();
-				audioDao.deleteBuilder().delete();
-				for (User u : friends) {
-					audioDao.create(u);
-				}
-				Log.d("Success in writing in DB");
-				return null;
-			}
+					@Override
+					public Void call() throws Exception {
+						Dao<User, Integer> audioDao = DatabaseFriendsHelder
+								.getInstance().getFriendsDao();
+						audioDao.deleteBuilder().delete();
+						for (User u : friends) {
+							u.isFriend = User.FRIEND;
+							audioDao.create(u);
+						}
+						Log.d("Success in writing in DB");
+						return null;
+					}
 
-			
-		}, new ErrorListener() {
-			
-			@Override
-			public void onError(Exception e) {
-				Log.d("error occurred during friends transaction");
-			}
-		});
+				}, new ErrorListener() {
+
+					@Override
+					public void onError(Exception e) {
+						Log.d("error occurred during friends transaction");
+					}
+				});
 	}
 
 	private void loadFriendsList() {
+		final boolean empty = DatabaseFriendsHelder.getInstance().isEmptyDB();
+		if (!empty) {
+			return;
+		}
 		Vkontakte.get().getFriendsList(Persistance.getUserId(),
 				new Callback<FriendsResponse>() {
 
@@ -247,17 +240,10 @@ public class ChooseDialogFragment extends SherlockListFragment {
 
 					@Override
 					public void success(FriendsResponse arg0, Response arg1) {
-						// TODO Auto-generated method stub
 						Log.d("Success loading friends");
-						checkRefreshing();
 						List<User> friends = arg0.response;
-						int c = 0;
-						for (User user : friends) {
-							Log.d(user.toString());
-							c++;
-							if (c > 30) {
-								break;
-							}
+						if (empty) {
+							loadDialogs();
 						}
 						insertFriendList(friends);
 					}

@@ -3,8 +3,13 @@ package com.ainur.hidevk.adapters;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.util.List;
+import java.util.Locale;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +21,14 @@ import butterknife.Views;
 
 import com.ainur.hidevk.R;
 import com.ainur.hidevk.models.Dialog;
+import com.ainur.hidevk.models.User;
 import com.ainur.hidevk.util.DatabaseFriendsHelder;
+import com.ainur.hidevk.util.Log;
+import com.ainur.hidevk.vk.FriendsResponse;
+import com.ainur.hidevk.vk.Vkontakte;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 public class DialogsAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
@@ -64,11 +76,35 @@ public class DialogsAdapter extends BaseAdapter {
 
 		@InjectView(R.id.userImage)
 		ImageView image;
-
+		
 		private Dialog dialog;
+
+		private String url;
+
+		private SimpleImageLoadingListener listener;
 
 		public ViewHolder(View view) {
 			Views.inject(this, view);
+			listener = new SimpleImageLoadingListener() {
+				@Override
+				public void onLoadingComplete(String imageUri, View view,
+						Bitmap loadedImage) {
+					// TODO Auto-generated method stub
+					if (imageUri.equals(url)) {
+						image.setImageBitmap(loadedImage);
+					}
+					super.onLoadingComplete(imageUri, view, loadedImage);
+				}
+
+				@Override
+				public void onLoadingFailed(String imageUri, View view,
+						FailReason failReason) {
+					// TODO show stub image
+					Log.d("loading failed:" + failReason.toString());
+					image.setImageResource(R.drawable.ic_launcher);
+					super.onLoadingFailed(imageUri, view, failReason);
+				}
+			};
 		}
 
 		@Override
@@ -90,18 +126,60 @@ public class DialogsAdapter extends BaseAdapter {
 		Dialog dialog = getItem(position);
 		long time = Integer.valueOf(dialog.date);
 		Date date = new Date(time * 1000);
-		String stringTime = DateFormat.getTimeInstance(DateFormat.SHORT)
-				.format(date);
+		String stringTime = DateFormat.getTimeInstance(DateFormat.SHORT,
+				Locale.ROOT).format(date);
+		// stringTime = stringTime.substring(0,stringTime.indexOf(" "));
 		holder.date.setText(stringTime);
 		holder.dialog = dialog;
 		holder.text.setText(dialog.body);
-		String userName = DatabaseFriendsHelder.getInstance().getUserName(dialog.uid);
-		if(userName==null){
-		holder.user.setText("Айнур Минибаев");
+		String userName = DatabaseFriendsHelder.getInstance().getUserName(
+				dialog.uid);
+		loadImage(dialog, holder);
+		if (userName == null) {
+			holder.user.setText("Айнур Минибаев");
 		} else {
 			holder.user.setText(userName);
 		}
 		return contentView;
+	}
+
+	private void loadImage(Dialog dialog, final ViewHolder holder) {
+		if (dialog.photo50 == null) {
+			String url = DatabaseFriendsHelder.getInstance().getFriendImageURL(
+					dialog.uid);
+			Log.d("For: "+dialog.toString()+" "+url);
+			holder.url = url;
+			if (url == null) {
+				Vkontakte.get().getUserInfo(dialog.uid,
+						new Callback<FriendsResponse>() {
+
+							@Override
+							public void success(FriendsResponse arg0,
+									Response arg1) {
+								Log.d("Success:");
+								User user = arg0.response.get(0);
+								Log.d(user.photoUrl+" my photo");
+								holder.url = user.photoUrl;
+								ImageLoader.getInstance().loadImage(user.photoUrl, holder.listener);
+								user.isFriend=User.NOT_FRIEND;
+								 DatabaseFriendsHelder.getInstance().addFriend(user);
+								//TODO save result
+							}
+
+							@Override
+							public void failure(RetrofitError arg0) {
+								// TODO Auto-generated method stub
+								Log.d("Fail:"+arg0.getMessage());
+							}
+						});
+			} else {
+				ImageLoader.getInstance().loadImage(url, holder.listener);
+			}
+		} else {
+			holder.url = dialog.photo50;
+			ImageLoader.getInstance()
+					.loadImage(dialog.photo50, holder.listener);
+		}
 	}
 
 }

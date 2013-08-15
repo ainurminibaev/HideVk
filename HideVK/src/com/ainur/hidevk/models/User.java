@@ -16,9 +16,10 @@ import com.j256.ormlite.field.DatabaseField;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 	public static final String USER_ID = "id";
-	
+	public static final int FRIEND = 1;
+	public static final int NOT_FRIEND = 0;
 	@JsonProperty("user_id")
-	@DatabaseField(unique = true, id = true)
+	@DatabaseField(unique = true, id = true, columnName = USER_ID)
 	public int id;
 
 	@DatabaseField
@@ -36,6 +37,9 @@ public class User {
 	@JsonDeserialize(using = HtmlParser.class)
 	public String photoUrl;
 
+	@DatabaseField
+	public int isFriend;
+
 	public static class HtmlParser extends JsonDeserializer<String> {
 
 		@Override
@@ -48,10 +52,10 @@ public class User {
 	public User() {
 
 	}
-	
+
 	@Override
 	public String toString() {
-		return firstName+" - "+lastName;
+		return firstName + " - " + lastName;
 	}
 
 }
