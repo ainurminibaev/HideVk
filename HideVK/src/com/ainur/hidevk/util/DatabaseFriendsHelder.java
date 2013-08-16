@@ -87,8 +87,8 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 	
 
 	public void clearAll() {
-		Dao<User, Integer> friendsDao = getFriendsDao();
 		try {
+			Dao<User, Integer> friendsDao = getFriendsDao();
 			friendsDao.deleteBuilder().delete();
 			Log.d("Table cleared");
 		} catch (SQLException e) {
@@ -99,9 +99,9 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 	
 	
 	public String getUserName(int uid){
-		Dao<User, Integer> friendsDao = getFriendsDao();
-		QueryBuilder<User, Integer> queryBuilder = friendsDao.queryBuilder();
 		try {
+			Dao<User, Integer> friendsDao = getFriendsDao();
+			QueryBuilder<User, Integer> queryBuilder = friendsDao.queryBuilder();
 			queryBuilder.where().eq(User.USER_ID, uid);
 			User finded = queryBuilder.queryForFirst();
 			String name = finded.firstName+" "+finded.lastName;
@@ -114,11 +114,11 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 	}
 	
 	public boolean isEmptyDB(){
-		Dao<User, Integer> friendsDao = getFriendsDao();
-		QueryBuilder<User, Integer> queryBuilder = friendsDao.queryBuilder();
-		queryBuilder.setCountOf(true);
 		long c=0;
 		try {
+			Dao<User, Integer> friendsDao = getFriendsDao();
+			QueryBuilder<User, Integer> queryBuilder = friendsDao.queryBuilder();
+			queryBuilder.setCountOf(true);
 			c = queryBuilder.countOf();
 			Log.d("Count of friends: "+c);
 		} catch (SQLException e) {
@@ -129,11 +129,14 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 	}
 	
 	public String getFriendImageURL(int uid){
-		Dao<User, Integer> friendsDao = getFriendsDao();
-		QueryBuilder<User, Integer> queryBuilder = friendsDao.queryBuilder();
 		try {
+			Dao<User, Integer> friendsDao = getFriendsDao();
+			QueryBuilder<User, Integer> queryBuilder = friendsDao.queryBuilder();
 			queryBuilder.where().eq(User.USER_ID, uid);
 		 List<User> query = queryBuilder.query();
+		 for(User u: query){
+			 Log.d("Finded user: "+u.toString());
+		 }
 			return query.get(0).photoUrl;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -143,8 +146,8 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 	}
 	
 	public boolean addFriend(User user){
-		Dao<User, Integer> friendsDao = getFriendsDao();
 		try {
+			Dao<User, Integer> friendsDao = getFriendsDao();
 			friendsDao.create(user);
 			Log.d("New user created");
 			return true;

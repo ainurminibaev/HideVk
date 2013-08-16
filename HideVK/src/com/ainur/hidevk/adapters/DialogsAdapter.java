@@ -67,7 +67,7 @@ public class DialogsAdapter extends BaseAdapter {
 
 		@InjectView(R.id.user_name)
 		TextView user;
-
+		
 		@InjectView(R.id.shot_message)
 		TextView text;
 

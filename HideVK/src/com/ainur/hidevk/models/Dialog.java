@@ -43,6 +43,12 @@ public class Dialog {
 	@JsonDeserialize(using = HtmlParser.class)
 	public String title;
 
+	@Override
+	public String toString() {
+		return "Dialog [uid=" + uid + ", title=" + title + ", photo50="
+				+ photo50 + "]";
+	}
+
 	@DatabaseField(canBeNull = true)
 	@JsonProperty("photo_50")
 	@JsonDeserialize(using = HtmlParser.class)

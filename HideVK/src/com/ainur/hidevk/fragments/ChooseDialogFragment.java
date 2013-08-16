@@ -204,12 +204,12 @@ public class ChooseDialogFragment extends SherlockListFragment {
 
 					@Override
 					public Void call() throws Exception {
-						Dao<User, Integer> audioDao = DatabaseFriendsHelder
+						Dao<User, Integer> friendsDao = DatabaseFriendsHelder
 								.getInstance().getFriendsDao();
-						audioDao.deleteBuilder().delete();
+						friendsDao.deleteBuilder().delete();
 						for (User u : friends) {
 							u.isFriend = User.FRIEND;
-							audioDao.create(u);
+							friendsDao.create(u);
 						}
 						Log.d("Success in writing in DB");
 						return null;
