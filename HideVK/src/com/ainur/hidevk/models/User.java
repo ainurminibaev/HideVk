@@ -39,6 +39,8 @@ public class User {
 
 	@DatabaseField
 	public int isFriend;
+	
+	public int uid;
 
 	public static class HtmlParser extends JsonDeserializer<String> {
 
@@ -47,6 +49,10 @@ public class User {
 				throws IOException, JsonProcessingException {
 			return Html.fromHtml(arg0.getValueAsString()).toString();
 		}
+	}
+	
+	public void prepare(){
+		id = uid;
 	}
 
 	public User() {

@@ -20,4 +20,8 @@ public interface VkAPI {
 
 	@GET("/users.get?&fields=photo_50")
 	void getUserInfo(@Query("user_id") int userId, Callback<FriendsResponse> cb);
+
+	@GET("/messages.getHistory")
+	void getHistory(@Query("offset") int offset, @Query("user_id") int userId,
+			Callback<MessageResponse> cb);
 }

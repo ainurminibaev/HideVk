@@ -108,7 +108,8 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 			return name;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
+			Log.d("error userName getting: "+uid);
 		}
 		return null;
 	}
@@ -140,7 +141,8 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 			return query.get(0).photoUrl;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
+			Log.d("error friend image URL GETTING:"+uid);
 		}
 		return null;
 	}
@@ -154,6 +156,7 @@ public class DatabaseFriendsHelder extends OrmLiteSqliteOpenHelper {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Log.d("error friend adding: "+ user.toString()+"; "+e.getMessage());
 		}
 		return false;
 	}

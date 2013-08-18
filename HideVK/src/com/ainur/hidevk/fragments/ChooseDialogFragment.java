@@ -18,9 +18,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.ainur.hidevk.HideVkApp;
+import com.ainur.hidevk.activity.ChatActivity;
 import com.ainur.hidevk.activity.ChooseDialogActivity;
 import com.ainur.hidevk.activity.LoginActivity;
 import com.ainur.hidevk.adapters.DialogsAdapter;
@@ -37,6 +40,7 @@ import com.ainur.hidevk.vk.Vkontakte;
 import com.j256.ormlite.dao.Dao;
 
 public class ChooseDialogFragment extends SherlockListFragment {
+	public static final String CHAT_USER_ID = "CHAT_USER_ID";
 	private static final int LOGIN_VK_CODE = 101;
 	private boolean created;
 	private PullToRefreshAttacher dialogPullToRefreshAttacher;
@@ -118,17 +122,31 @@ public class ChooseDialogFragment extends SherlockListFragment {
 			setAdapterData(dialogs);
 		}
 	}
+	
+	private OnItemClickListener itemClickListener = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+				long arg3) {
+			Log.d(getListAdapter().getItem(arg2).toString());
+			Intent intent = new Intent(getSherlockActivity(), ChatActivity.class);
+			Log.d(arg2+"");
+			intent.putExtra(CHAT_USER_ID, getListAdapter().getItem(arg2).uid);
+			startActivity(intent);
+		}
+	};
 
 	private void setAdapterData(List<Dialog> dialogs) {
 		if (getListAdapter() == null) {
 			setListAdapter(new DialogsAdapter(getSherlockActivity(), dialogs));
+			getListView().setOnItemClickListener(itemClickListener);
 		} else {
 			getListAdapter().setDialogs(dialogs);
 		}
 	}
 
 	private void startLoginActivity() {
-		Intent intent = new Intent(HideVkApp.getContext(), LoginActivity.class);
+		Intent intent = new Intent(getSherlockActivity(), LoginActivity.class);
 		startActivityForResult(intent, LOGIN_VK_CODE);
 	}
 

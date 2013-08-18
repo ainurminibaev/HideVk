@@ -67,16 +67,16 @@ public class DialogsAdapter extends BaseAdapter {
 
 		@InjectView(R.id.user_name)
 		TextView user;
-		
+
 		@InjectView(R.id.shot_message)
 		TextView text;
 
 		@InjectView(R.id.time)
 		TextView date;
-
+		
 		@InjectView(R.id.userImage)
 		ImageView image;
-		
+
 		private Dialog dialog;
 
 		private String url;
@@ -111,6 +111,10 @@ public class DialogsAdapter extends BaseAdapter {
 		public String toString() {
 			return dialog.toString();
 		}
+
+		public void updateNames(User user2) {
+			user.setText(user2.toString());
+		}
 	}
 
 	@Override
@@ -128,7 +132,6 @@ public class DialogsAdapter extends BaseAdapter {
 		Date date = new Date(time * 1000);
 		String stringTime = DateFormat.getTimeInstance(DateFormat.SHORT,
 				Locale.ROOT).format(date);
-		// stringTime = stringTime.substring(0,stringTime.indexOf(" "));
 		holder.date.setText(stringTime);
 		holder.dialog = dialog;
 		holder.text.setText(dialog.body);
@@ -147,7 +150,6 @@ public class DialogsAdapter extends BaseAdapter {
 		if (dialog.photo50 == null) {
 			String url = DatabaseFriendsHelder.getInstance().getFriendImageURL(
 					dialog.uid);
-			Log.d("For: "+dialog.toString()+" "+url);
 			holder.url = url;
 			if (url == null) {
 				Vkontakte.get().getUserInfo(dialog.uid,
@@ -156,20 +158,21 @@ public class DialogsAdapter extends BaseAdapter {
 							@Override
 							public void success(FriendsResponse arg0,
 									Response arg1) {
-								Log.d("Success:");
 								User user = arg0.response.get(0);
-								Log.d(user.photoUrl+" my photo");
+								Log.d(user.photoUrl + " my photo");
 								holder.url = user.photoUrl;
-								ImageLoader.getInstance().loadImage(user.photoUrl, holder.listener);
-								user.isFriend=User.NOT_FRIEND;
-								 DatabaseFriendsHelder.getInstance().addFriend(user);
-								//TODO save result
+								ImageLoader.getInstance().loadImage(
+										user.photoUrl, holder.listener);
+								user.isFriend = User.NOT_FRIEND;
+								user.prepare();
+								holder.updateNames(user);
+								DatabaseFriendsHelder.getInstance().addFriend(
+										user);
 							}
 
 							@Override
 							public void failure(RetrofitError arg0) {
-								// TODO Auto-generated method stub
-								Log.d("Fail:"+arg0.getMessage());
+								Log.d("Fail:" + arg0.getMessage());
 							}
 						});
 			} else {
