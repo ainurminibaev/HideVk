@@ -70,13 +70,13 @@ public class DialogsAdapter extends BaseAdapter {
 
 		@InjectView(R.id.shot_message)
 		TextView text;
-
+		
 		@InjectView(R.id.time)
 		TextView date;
 		
 		@InjectView(R.id.userImage)
 		ImageView image;
-
+		
 		private Dialog dialog;
 
 		private String url;

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="max_line">1</integer>
+    <integer name="left_id">0</integer>
+    <integer name="right_id">1</integer>
+    <integer name="content_view_id">3</integer>
 </resources>

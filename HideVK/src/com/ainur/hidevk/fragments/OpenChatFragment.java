@@ -11,11 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ListView;
 import butterknife.InjectView;
 import butterknife.Views;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.ainur.hidevk.R;
+import com.ainur.hidevk.adapters.MessageAdapter;
 import com.ainur.hidevk.models.Message;
 import com.ainur.hidevk.util.Log;
 import com.ainur.hidevk.vk.MessageResponse;
@@ -25,6 +27,9 @@ public class OpenChatFragment extends SherlockFragment {
 
 	@InjectView(R.id.message_edit_open)
 	EditText messageEdit;
+
+	@InjectView(R.id.dialogs_list_view)
+	ListView listView;
 	
 	private int userId;
 
@@ -52,18 +57,20 @@ public class OpenChatFragment extends SherlockFragment {
 
 	private void loadMessages() {
 		Vkontakte.get().getHistory(0, userId, new Callback<MessageResponse>() {
-			
+
 			@Override
 			public void success(MessageResponse arg0, Response arg1) {
 				Log.d("Success in History loading");
-				List<Message> list = arg0.response.subList(1, arg0.response.size()); 
-//TODO show data
+				List<Message> list = arg0.response.subList(1,
+						arg0.response.size());
+				listView.setAdapter(new MessageAdapter(getSherlockActivity(),list));
+				// TODO show data
 			}
-			
+
 			@Override
 			public void failure(RetrofitError arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
 	}

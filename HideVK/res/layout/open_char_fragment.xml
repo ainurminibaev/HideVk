@@ -7,8 +7,10 @@
         android:id="@+id/dialogs_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/linlay" >
-
+        android:layout_above="@+id/linlay" 
+        android:dividerHeight="0dp"
+        >
+	
     </ListView>
 
     <LinearLayout
