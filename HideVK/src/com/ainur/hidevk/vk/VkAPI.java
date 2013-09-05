@@ -24,4 +24,7 @@ public interface VkAPI {
 	@GET("/messages.getHistory")
 	void getHistory(@Query("offset") int offset, @Query("user_id") int userId,
 			Callback<MessageResponse> cb);
+
+	@GET("/messages.send")
+	void setMessage(@Query("user_id") int user_id,@Query("message") String text, Callback<SendMessageResponse> callback);
 }

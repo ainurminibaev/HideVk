@@ -19,7 +19,14 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="bottom|fill_horizontal"
-        android:orientation="vertical" >
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" 
+            android:text="send"
+            />
 
         <EditText
             android:id="@+id/message_edit_open"
@@ -34,11 +41,14 @@
             android:maxLines="@integer/max_line"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:textColor="@color/white"
+            android:text="tertert"
+            android:textColor="@color/textColor"
             android:textStyle="bold" >
 
-            <requestFocus />
+            <requestFocus android:layout_width="wrap_content" />
+
         </EditText>
+
     </LinearLayout>
 
 </RelativeLayout>

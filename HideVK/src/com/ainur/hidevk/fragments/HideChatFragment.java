@@ -22,7 +22,7 @@ public class HideChatFragment extends SherlockFragment {
 	private CameraPreview mPreview;
 	FrameLayout cameraFrame;
 
-	@InjectView(R.id.message_edit_open)
+	@InjectView(R.id.message_edit_hide)
 	EditText messageEdit;
 	
 	@Override

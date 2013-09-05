@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import butterknife.Views;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -21,15 +22,18 @@ import com.ainur.hidevk.adapters.MessageAdapter;
 import com.ainur.hidevk.models.Message;
 import com.ainur.hidevk.util.Log;
 import com.ainur.hidevk.vk.MessageResponse;
+import com.ainur.hidevk.vk.SendMessageResponse;
 import com.ainur.hidevk.vk.Vkontakte;
 
-public class OpenChatFragment extends SherlockFragment {
+public class OpenChatFragment extends BaseFragment {
 
 	@InjectView(R.id.message_edit_open)
 	EditText messageEdit;
 
 	@InjectView(R.id.dialogs_list_view)
 	ListView listView;
+	
+
 	
 	private int userId;
 
@@ -44,7 +48,6 @@ public class OpenChatFragment extends SherlockFragment {
 		View view = inflater.inflate(R.layout.open_char_fragment, container,
 				false);
 		Views.inject(this, view);
-		messageEdit.setText("Ainur");
 		Intent intent = getActivity().getIntent();
 		userId = intent.getIntExtra(ChooseDialogFragment.CHAT_USER_ID, 0);
 		if (userId == 0) {
@@ -74,6 +77,11 @@ public class OpenChatFragment extends SherlockFragment {
 			}
 		});
 	}
+	
+	@OnClick(R.id.message_edit_open)
+	public void clickText(){
+		Log.d("Click");
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -84,6 +92,25 @@ public class OpenChatFragment extends SherlockFragment {
 	public void onDestroyView() {
 		Views.reset(this);
 		super.onDestroyView();
+	}
+	
+	@OnClick(R.id.send_message)
+	public void send(){
+		String text = messageEdit.getText().toString();
+		Log.d("send:"+text);
+		Vkontakte.get().setMessage(userId, text, new Callback<SendMessageResponse>() {
+
+			@Override
+			public void failure(RetrofitError arg0) {
+				//TODO
+				Log.d(arg0.getMessage());
+			}
+
+			@Override
+			public void success(SendMessageResponse arg0, Response arg1) {
+				messageEdit.setText("");
+			}
+		});
 	}
 
 }
